@@ -9,27 +9,15 @@ namespace StarterKITNET.Domain
             : base(options)
         {
         }
-
-        public DbSet<User> Users { get; set; }
-
+        public DbSet<Product> Products { get; set; }
+        public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
+        public DbSet<SystemLog> SystemLogs { get; set; } = default!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<User>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.HasIndex(e => e.Email)
-                      .IsUnique();
-
-                entity.Property(e => e.FullName)
-                      .IsRequired()
-                      .HasMaxLength(100);
-
-                entity.Property(e => e.CreatedAt)
-                      .HasDefaultValueSql("NOW()");
-            });
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         }
+
+
+
     }
 }

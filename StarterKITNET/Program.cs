@@ -1,26 +1,28 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using StarterKITNET.Domain;
+using StarterKITNET.Entities;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<ISystemLogService, SystemLogService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+using (var scope = app.Services.CreateScope())
+{
+    var log = scope.ServiceProvider.GetRequiredService<ISystemLogService>();
+    await log.Info("Hệ thống khởi động thành công", "Startup");
+}
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
