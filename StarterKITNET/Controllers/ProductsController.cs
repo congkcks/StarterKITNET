@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StarterKITNET.Domain;
+using StarterKITNET.DTOs;
 using StarterKITNET.Entities;
 namespace MyStarter.API.Controllers;
 [ApiController]
@@ -33,14 +34,26 @@ public class ProductsController : ControllerBase
         return Ok(products);
     }
     [HttpPost]
-    public async Task<IActionResult> Create(Product model)
+    public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
     {
-        model.Id = Guid.NewGuid();
-        model.Stock = 0;
-        _db.Products.Add(model);
+        var product = new Product
+        {
+            Id = Guid.NewGuid(),
+            Code = dto.Code,
+            Name = dto.Name,
+            Stock = dto.Stock!= null ? dto.Stock.Value : 100
+        };
+
+        _db.Products.Add(product);
         await _db.SaveChangesAsync();
-        await _log.Info($"Tạo sản phẩm {model.Code} - {model.Name}", nameof(ProductsController), model.Id);
-        return Ok(model);
+
+        await _log.Info(
+            $"Tạo sản phẩm {product.Code} - {product.Name}",
+            nameof(ProductsController),
+            product.Id
+        );
+
+        return Ok(product);
     }
 
     [HttpPost("{id}/import")]
